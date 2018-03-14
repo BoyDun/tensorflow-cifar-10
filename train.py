@@ -29,7 +29,9 @@ discr_loss = cross_discr_norm + cross_discr_adv
 discr_optimizer = tf.train.RMSPropOptimizer(learning_rate=1e-3).minimize(discr_loss, var_list = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, 'discr'))
 correct_norm_discr = tf.equal(tf.argmax(discr_reg_y, 1), tf.argmax(discr_reg_final, 1))
 correct_adv_discr = tf.equal(tf.argmax(discr_adv_y, 1), tf.argmax(discr_adv_final, 1))
-discr_accuracy = (tf.reduce_mean(tf.cast(correct_norm_discr, tf.float32)) + tf.reduce_mean(tf.cast(correct_adv_discr, tf.float32)))/2
+discr_accuracy_reg = tf.reduce_mean(tf.cast(correct_norm_discr, tf.float32))
+discr_accuracy_adv = tf.reduce_mean(tf.cast(correct_adv_discr, tf.float32))
+discr_accuracy = (discr_accuracy_reg + discr_accuracy_adv)/2
 
 loss = alpha * tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=reg_output, labels=reg_y)) + (1 - alpha) * tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=adv_output, labels=adv_y)) - beta * cross_discr_adv 
 sm_norm = tf.nn.softmax(reg_output)
@@ -40,9 +42,13 @@ adv_examples = fast_gradient.fgm(reg_x, reg_output, sm_norm, eps = fgm_eps, epoc
 
 reg_correct_prediction = tf.equal(reg_y_pred_cls, tf.argmax(reg_y, axis=1))
 adv_correct_prediction = tf.equal(adv_y_pred_cls, tf.argmax(adv_y, axis=1))
-accuracy = (tf.reduce_mean(tf.cast(reg_correct_prediction, tf.float32)) + tf.reduce_mean(tf.cast(adv_correct_prediction, tf.float32)))/2
-tf.summary.scalar("Accuracy/classifier_train", accuracy)
-tf.summary.scalar("Accuracy/discr_train", discr_accuracy)
+accuracy_reg = tf.reduce_mean(tf.cast(reg_correct_prediction, tf.float32))
+accuracy_adv = tf.reduce_mean(tf.cast(adv_correct_prediction, tf.float32))
+accuracy = (accuracy_reg + accuracy_adv) / 2
+tf.summary.scalar("Accuracy/class_reg_train", accuracy_reg)
+tf.summary.scalar("Accuracy/class_adv_train", accuracy_adv
+tf.summary.scalar("Accuracy/discr_reg_train", discr_accuracy_reg)
+tf.summary.scalar("Accuracy/discr_adv_train", discr_accuracy_adv)
 
 merged = tf.summary.merge_all()
 saver = tf.train.Saver()
