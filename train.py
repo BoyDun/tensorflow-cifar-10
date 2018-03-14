@@ -46,7 +46,7 @@ accuracy_reg = tf.reduce_mean(tf.cast(reg_correct_prediction, tf.float32))
 accuracy_adv = tf.reduce_mean(tf.cast(adv_correct_prediction, tf.float32))
 accuracy = (accuracy_reg + accuracy_adv) / 2
 tf.summary.scalar("Accuracy/class_reg_train", accuracy_reg)
-tf.summary.scalar("Accuracy/class_adv_train", accuracy_adv
+tf.summary.scalar("Accuracy/class_adv_train", accuracy_adv)
 tf.summary.scalar("Accuracy/discr_reg_train", discr_accuracy_reg)
 tf.summary.scalar("Accuracy/discr_adv_train", discr_accuracy_adv)
 
@@ -99,10 +99,11 @@ def train(num_iterations):
 
         if (i_global % 100 == 0) or (i == num_iterations - 1):
             data_merged, global_1 = sess.run([merged, global_step], feed_dict={reg_x: batch_xs, reg_y: batch_ys, adv_x:adv_images, adv_y: batch_ys})
-            acc = predict_test()
+            val_acc, test_acc = predict_test()
 
             summary = tf.Summary(value=[
-                tf.Summary.Value(tag="Accuracy/test", simple_value=acc),
+                tf.Summary.Value(tag="Accuracy/validation", simple_value=val_acc),
+                tf.Summary.Value(tag="Accuracy/test", simple_value=test_acc)
             ])
             train_writer.add_summary(data_merged, global_1)
             train_writer.add_summary(summary, global_1)
@@ -126,10 +127,12 @@ def predict_test(show_confusion_matrix=False):
         i = j
 
     correct = (np.argmax(test_y, axis=1) == predicted_class)
-    acc = correct.mean()*100
-    correct_numbers = correct.sum()
-    print("Accuracy on Test-Set: {0:.2f}% ({1} / {2})".format(acc, correct_numbers, len(test_x)))
-
+    val_acc = correct[:len(correct)/2].mean()*100
+    test_acc = correct[len(correct)/2:].mean()*100
+    correct_val_numbers = correct[:len(correct)/2].sum()
+    correct_test_numbers = correct[len(correct)/2:].sum()
+    print("Accuracy on Dev-Set: {0:.2f}% ({1} / {2})".format(val_acc, correct_val_numbers, len(test_x / 2)))
+    print("Accuracy on Test-Set: {0:.2f}% ({1} / {2})".format(test_acc, correct_test_numbers, len(test_x / 2)))
     if show_confusion_matrix is True:
         cm = confusion_matrix(y_true=np.argmax(test_y, axis=1), y_pred=predicted_class)
         for i in range(_CLASS_SIZE):
@@ -138,7 +141,7 @@ def predict_test(show_confusion_matrix=False):
         class_numbers = [" ({0})".format(i) for i in range(_CLASS_SIZE)]
         print("".join(class_numbers))
 
-    return acc
+    return val_acc, test_acc
 
 
 if _ITERATION != 0:
