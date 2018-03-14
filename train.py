@@ -41,8 +41,8 @@ adv_examples = fast_gradient.fgm(reg_x, reg_output, sm_norm, eps = fgm_eps, epoc
 reg_correct_prediction = tf.equal(reg_y_pred_cls, tf.argmax(reg_y, axis=1))
 adv_correct_prediction = tf.equal(adv_y_pred_cls, tf.argmax(adv_y, axis=1))
 accuracy = (tf.reduce_mean(tf.cast(reg_correct_prediction, tf.float32)) + tf.reduce_mean(tf.cast(adv_correct_prediction, tf.float32)))/2
-tf.summary.scalar("Accuracy/train", accuracy)
-
+tf.summary.scalar("Accuracy/classifier_train", accuracy)
+tf.summary.scalar("Accuracy/discr_train", discr_accuracy)
 
 merged = tf.summary.merge_all()
 saver = tf.train.Saver()
