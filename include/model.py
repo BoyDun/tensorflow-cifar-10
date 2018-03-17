@@ -128,9 +128,9 @@ def model():
         adv_y = tf.placeholder(tf.float32, shape=[None, _NUM_CLASSES], name='Output')
         adv_x_image = tf.reshape(adv_x, [-1, _IMAGE_SIZE, _IMAGE_SIZE, _IMAGE_CHANNELS], name='images')
     with tf.variable_scope('adv_conv1') as scope:
-        kernel = variable_with_weight_decay('weights', shape=[5, 5, 3, 64], stddev=5e-2, wd=0.0)
+        #kernel = variable_with_weight_decay('weights', shape=[5, 5, 3, 64], stddev=5e-2, wd=0.0)
         conv = tf.nn.conv2d(adv_x_image, kernel1, [1, 1, 1, 1], padding='SAME')
-        biases = variable_on_cpu('biases', [64], tf.constant_initializer(0.0))
+        #biases = variable_on_cpu('biases', [64], tf.constant_initializer(0.0))
         pre_activation = tf.nn.bias_add(conv, biases1)
         adv_conv1 = tf.nn.relu(pre_activation, name=scope.name)
     tf.summary.histogram('Convolution_layers/adv_conv1', adv_conv1)
@@ -140,9 +140,9 @@ def model():
     adv_pool1 = tf.nn.max_pool(adv_norm1, ksize=[1, 3, 3, 1], strides=[1, 2, 2, 1], padding='SAME', name='adv_pool1')
 
     with tf.variable_scope('adv_conv2') as scope:
-        kernel = variable_with_weight_decay('weights', shape=[5, 5, 64, 64], stddev=5e-2, wd=0.0)
+        #kernel = variable_with_weight_decay('weights', shape=[5, 5, 64, 64], stddev=5e-2, wd=0.0)
         conv = tf.nn.conv2d(adv_pool1, kernel2, [1, 1, 1, 1], padding='SAME')
-        biases = variable_on_cpu('biases', [64], tf.constant_initializer(0.1))
+        #biases = variable_on_cpu('biases', [64], tf.constant_initializer(0.1))
         pre_activation = tf.nn.bias_add(conv, biases2)
         adv_conv2 = tf.nn.relu(pre_activation, name=scope.name)
     tf.summary.histogram('Convolution_layers/adv_conv2', adv_conv2)
@@ -152,27 +152,27 @@ def model():
     adv_pool2 = tf.nn.max_pool(adv_norm2, ksize=[1, 3, 3, 1], strides=[1, 2, 2, 1], padding='SAME', name='pool2')
 
     with tf.variable_scope('adv_conv3') as scope:
-        kernel = variable_with_weight_decay('weights', shape=[3, 3, 64, 128], stddev=5e-2, wd=0.0)
+        #kernel = variable_with_weight_decay('weights', shape=[3, 3, 64, 128], stddev=5e-2, wd=0.0)
         conv = tf.nn.conv2d(adv_pool2, kernel3, [1, 1, 1, 1], padding='SAME')
-        biases = variable_on_cpu('biases', [128], tf.constant_initializer(0.0))
+        #biases = variable_on_cpu('biases', [128], tf.constant_initializer(0.0))
         pre_activation = tf.nn.bias_add(conv, biases3)
         adv_conv3 = tf.nn.relu(pre_activation, name=scope.name)
     tf.summary.histogram('Convolution_layers/adv_conv3', adv_conv3)
     tf.summary.scalar('Convolution_layers/adv_conv3', tf.nn.zero_fraction(adv_conv3))
 
     with tf.variable_scope('adv_conv4') as scope:
-        kernel = variable_with_weight_decay('weights', shape=[3, 3, 128, 128], stddev=5e-2, wd=0.0)
+        #kernel = variable_with_weight_decay('weights', shape=[3, 3, 128, 128], stddev=5e-2, wd=0.0)
         conv = tf.nn.conv2d(adv_conv3, kernel4, [1, 1, 1, 1], padding='SAME')
-        biases = variable_on_cpu('biases', [128], tf.constant_initializer(0.0))
+        #biases = variable_on_cpu('biases', [128], tf.constant_initializer(0.0))
         pre_activation = tf.nn.bias_add(conv, biases4)
         adv_conv4 = tf.nn.relu(pre_activation, name=scope.name)
     tf.summary.histogram('Convolution_layers/adv_conv4', adv_conv4)
     tf.summary.scalar('Convolution_layers/adv_conv4', tf.nn.zero_fraction(adv_conv4))
 
     with tf.variable_scope('adv_conv5') as scope:
-        kernel = variable_with_weight_decay('weights', shape=[3, 3, 128, 128], stddev=5e-2, wd=0.0)
+        #kernel = variable_with_weight_decay('weights', shape=[3, 3, 128, 128], stddev=5e-2, wd=0.0)
         conv = tf.nn.conv2d(adv_conv4, kernel5, [1, 1, 1, 1], padding='SAME')
-        biases = variable_on_cpu('biases', [128], tf.constant_initializer(0.0))
+        #biases = variable_on_cpu('biases', [128], tf.constant_initializer(0.0))
         pre_activation = tf.nn.bias_add(conv, biases5)
         adv_conv5 = tf.nn.relu(pre_activation, name=scope.name)
     tf.summary.histogram('Convolution_layers/adv_conv5', adv_conv5)
@@ -184,14 +184,14 @@ def model():
     with tf.variable_scope('discr_adv_fully_connected1') as scope:
         reshape = tf.reshape(adv_pool3, [-1, _RESHAPE_SIZE])
         dim = reshape.get_shape()[1].value
-        weights = variable_with_weight_decay('weights', shape=[dim, 384], stddev=0.04, wd=0.004)
-        biases = variable_on_cpu('biases', [384], tf.constant_initializer(0.1))
+        #weights = variable_with_weight_decay('weights', shape=[dim, 384], stddev=0.04, wd=0.004)
+        #biases = variable_on_cpu('biases', [384], tf.constant_initializer(0.1))
     #    discr_adv_dropout1 = tf.nn.dropout(reshape, keep_prob=keep_prob_input)
         discr_adv1 = tf.nn.relu(tf.matmul(reshape, weights6) + biases6, name=scope.name)
 
     with tf.variable_scope('discr_adv_fully_connected2') as scope:
-        weights = variable_with_weight_decay('weights', shape=[384,2], stddev=0.04, wd=0.004)
-        biases = variable_on_cpu('biases', [2], tf.constant_initializer(0.1))
+        #weights = variable_with_weight_decay('weights', shape=[384,2], stddev=0.04, wd=0.004)
+        #biases = variable_on_cpu('biases', [2], tf.constant_initializer(0.1))
        	discr_adv_final = tf.matmul(discr_adv1, weights7) + biases7
 
  
@@ -200,22 +200,22 @@ def model():
     with tf.variable_scope('adv_fully_connected1') as scope:
         reshape = tf.reshape(adv_pool3, [-1, _RESHAPE_SIZE])
         dim = reshape.get_shape()[1].value
-        weights = variable_with_weight_decay('weights', shape=[dim, 384], stddev=0.04, wd=0.004)
-        biases = variable_on_cpu('biases', [384], tf.constant_initializer(0.1))
+        #weights = variable_with_weight_decay('weights', shape=[dim, 384], stddev=0.04, wd=0.004)
+        #biases = variable_on_cpu('biases', [384], tf.constant_initializer(0.1))
         adv_local3 = tf.nn.relu(tf.matmul(reshape, weights8) + biases8, name=scope.name)
     tf.summary.histogram('Fully connected layers/adv_fc1', adv_local3)
     tf.summary.scalar('Fully connected layers/adv_fc1', tf.nn.zero_fraction(adv_local3))
 
     with tf.variable_scope('adv_fully_connected2') as scope:
-        weights = variable_with_weight_decay('weights', shape=[384, 192], stddev=0.04, wd=0.004)
-        biases = variable_on_cpu('biases', [192], tf.constant_initializer(0.1))
+        #weights = variable_with_weight_decay('weights', shape=[384, 192], stddev=0.04, wd=0.004)
+        #biases = variable_on_cpu('biases', [192], tf.constant_initializer(0.1))
         adv_local4 = tf.nn.relu(tf.matmul(adv_local3, weights9) + biases9, name=scope.name)
     tf.summary.histogram('Fully connected layers/fc2', adv_local4)
     tf.summary.scalar('Fully connected layers/fc2', tf.nn.zero_fraction(adv_local4))
 
     with tf.variable_scope('adv_output') as scope:
-        weights = variable_with_weight_decay('weights', [192, _NUM_CLASSES], stddev=1 / 192.0, wd=0.0)
-        biases = variable_on_cpu('biases', [_NUM_CLASSES], tf.constant_initializer(0.0))
+        #weights = variable_with_weight_decay('weights', [192, _NUM_CLASSES], stddev=1 / 192.0, wd=0.0)
+        #biases = variable_on_cpu('biases', [_NUM_CLASSES], tf.constant_initializer(0.0))
         adv_softmax_linear = tf.add(tf.matmul(adv_local4, weights10), biases10, name=scope.name)
     tf.summary.histogram('Fully connected layers/output', adv_softmax_linear)
 
@@ -224,5 +224,4 @@ def model():
 
     discr_reg_y = tf.placeholder(tf.int32, [None, 2])
     discr_adv_y = tf.placeholder(tf.int32, [None, 2])
-    print(tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, 'discr'))
-    return reg_x, reg_y, reg_softmax_linear, reg_y_pred_cls, adv_x, adv_y, adv_softmax_linear, global_step, adv_y_pred_cls, discr_reg_final, discr_adv_final, discr_reg_y, discr_adv_y
+    return reg_x, reg_y, reg_softmax_linear, reg_y_pred_cls, adv_x, adv_y, adv_softmax_linear, global_step, adv_y_pred_cls, discr_reg_final, discr_adv_final, discr_reg_y, discr_adv_y, reg_conv5, adv_conv5, reg_conv2, adv_conv2
